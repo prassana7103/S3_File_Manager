@@ -24,7 +24,6 @@ def index():
 def create_folder():
     bucket_name = request.form['bucket_name']
     folder_name = request.form['folder_name']
-
     # Upload a placeholder object to simulate the folder
     try:
         s3.put_object(Bucket=bucket_name, Key=(folder_name + '/'))
@@ -39,7 +38,6 @@ def create_folder():
 def delete_folder():
     bucket_name = request.form['bucket_name']
     folder_name = request.form['folder_name']
-
     # Delete the "folder" object
     try:
         s3.delete_object(Bucket=bucket_name, Key=(folder_name + '/'))
@@ -56,7 +54,6 @@ def delete_folder():
 def delete_object():
     bucket_name = request.form['bucket_name']
     object_key = request.form['object_key']
-    
     try:
         # Delete the object from the bucket
         s3.delete_object(Bucket=bucket_name, Key=object_key)
@@ -73,7 +70,6 @@ def move_file():
     source_bucket = request.form['source_bucket']
     destination_bucket = request.form['destination_bucket']
     file_name = request.form['file_name']
-    
     try:
         # Copy the file from the source bucket to the destination bucket
         s3.copy_object(CopySource={'Bucket': source_bucket, 'Key': file_name},
@@ -96,9 +92,7 @@ def list_s3():
         bucket_name = request.form.get('bucket_name')
     else:
         bucket_name = request.args.get('bucket_name')
-    
     contents = []
-
     try:
         response = s3.list_objects_v2(Bucket=bucket_name)
         if 'Contents' in response:
@@ -107,15 +101,12 @@ def list_s3():
     except ClientError as e:
         print(f"Error listing objects: {e}")
         # Handle the error as needed, e.g., render an error page
-    
     return render_template('index.html', contents=contents, bucket_name=bucket_name)
 
 @app.route('/create_bucket', methods=['POST'])
 def create_bucket():
     bucket_name = request.form['bucket_name']
     region = AWS_DEFAULT_REGION  # Specify your desired region here
-
-    
     try:
         s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
     except ClientError as e:
@@ -138,11 +129,9 @@ def create_bucket():
     
     return redirect('/')
 
-
 @app.route('/delete_bucket', methods=['POST'])
 def delete_bucket():
     bucket_name = request.form['bucket_name']
-    
     # Delete all objects in the bucket
     try:
         response = s3.list_objects_v2(Bucket=bucket_name)
@@ -167,7 +156,6 @@ def upload_file():
     file_name = file.filename
     s3.upload_fileobj(file, bucket_name, file_name)
     return redirect('/list_s3?bucket_name=' + bucket_name)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
